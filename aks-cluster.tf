@@ -29,4 +29,12 @@ resource "azurerm_kubernetes_cluster" "default" {
     enabled = true
   }
 
+  # Connect the cluster to Azure Monitor
+  addon_profile {
+    oms_agent {
+      enabled                    = true
+      log_analytics_workspace_id = azurerm_log_analytics_workspace.default.id
+    }
+  }
+
 }
