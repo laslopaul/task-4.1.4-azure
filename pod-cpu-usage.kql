@@ -1,0 +1,18 @@
+let clusterName = "task-414-aks";
+let serviceName = "azure-vote-front";
+let counterName = "cpuUsageNanoCores";
+let startTime=ago(60m);
+KubePodInventory
+| where ClusterName == clusterName
+| where ServiceName == serviceName
+| where TimeGenerated >= startTime
+| extend JustContainerName=tostring(split(ContainerName, '/')[1])
+| extend InstanceName=strcat(ClusterId, '/', PodUid, '/', JustContainerName) 
+| distinct Name, InstanceName
+| join (
+    Perf
+    | where TimeGenerated >= startTime
+    | where CounterName == counterName
+    ) on InstanceName
+| project CounterValue, TimeGenerated, Name
+| render timechart 
